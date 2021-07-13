@@ -2,6 +2,7 @@ import { useState, useContext, useEffect } from "react";
 import { Link, useHistory } from "react-router-dom";
 import FirebaseContext from "../context/firebase";
 import * as ROUTES from '../constants/routes';
+import { doesUsernameExist } from "../services/firebase";
 const SignUp = () => {
     const history = useHistory();
     const { firebase } = useContext(FirebaseContext)
@@ -14,10 +15,40 @@ const SignUp = () => {
 
     const handleSignup = async (event) => {
         event.preventDefault();
-        try {
-        } catch (error) {
+        const usernameExists = await doesUsernameExist(username)
+        console.log('username exists', usernameExists);
+        if(!usernameExists.length){
+            try {
+                const createdUserResult = await firebase
+                .auth()
+                .createUserWithEmailAndPassword(emailAddress, password)
 
+                // authentication 
+                await createdUserResult.user.updateProfile({
+                    displayName: username
+                })
+
+                // firebase user collection create 
+                await firebase.firestore().collection('users').add({
+                    userId: createdUserResult.user.uid,
+                    username: username.toLowerCase(),
+                    fullName,
+                    emailAddress:emailAddress.toLowerCase(),
+                    following:[],
+                    dateCreated: Date.now()
+                })
+                history.push(ROUTES.DASHBOARD)
+            } catch (error) {
+                setEmailAddress('')
+                setPassword('')
+                setUsername('')
+                setFullName('')
+                setError(error.message)
+            }
+        }else{
+            setError('Username is taken!!!')
         }
+        
     };
 
     useEffect(() => {
@@ -42,7 +73,7 @@ const SignUp = () => {
                  placeholder="Full Name"
                  className="text-sm text-gray-base w-full mr-3 py-5 px-4 h-2 border border-gray-primary rounded mb-2"
                  onChange={({target}) => setFullName(target.value)}
-                 value={fullName || ''}
+                 value={fullName}
                  />
                 <input 
                  aria-label="Enter your Username"
@@ -50,7 +81,7 @@ const SignUp = () => {
                  placeholder="Username"
                  className="text-sm text-gray-base w-full mr-3 py-5 px-4 h-2 border border-gray-primary rounded mb-2"
                  onChange={({target}) => setUsername(target.value)}
-                 value={username || ''}
+                 value={username}
                  />
                  <input 
                  aria-label="Enter your email address"
@@ -58,7 +89,7 @@ const SignUp = () => {
                  placeholder="Email"
                  className="text-sm text-gray-base w-full mr-3 py-5 px-4 h-2 border border-gray-primary rounded mb-2"
                  onChange={({target}) => setEmailAddress(target.value)}
-                 value={emailAddress || ''}
+                 value={emailAddress}
                  />
 
                 <input 
@@ -67,7 +98,7 @@ const SignUp = () => {
                  placeholder="Password"
                  className="text-sm text-gray-base w-full mr-3 py-5 px-4 h-2 border border-gray-primary rounded mb-2"
                  onChange={({target}) => setPassword(target.value)}
-                 value={password || ''}
+                 value={password}
                  />
 
                  <button disabled={isInvalid}
@@ -79,7 +110,7 @@ const SignUp = () => {
          <div className="flex justify-center items-center flex-col w-full bg-white p-4 border border-gray-primary rounded">
              <p className="text-sm">
                  Have an account?{` `}
-                 <Link to="/login" className="font-bold text-blue-medium">Login In</Link>
+                 <Link to={ROUTES.LOGIN} className="font-bold text-blue-medium">Login</Link>
              </p>
          </div>
          </div>
