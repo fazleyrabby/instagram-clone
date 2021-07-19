@@ -6,7 +6,7 @@ const useUser = () => {
    const { user } = useContext(UserContext)
    useEffect(() => {
        async function getUserObjByUserId(){
-        //    get data by user id 
+        //get data by user id 
         const [response] = await getUserByUserId(user.uid);
         setActiveUser(response);
        }

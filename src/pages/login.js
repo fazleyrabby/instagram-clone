@@ -21,10 +21,11 @@ const Login = () => {
             setError(error.message);
         }
     };
-
+    
     useEffect(() => {
         document.title = 'Login - Instagram'
     },[])
+    
     return (
       <div className="container flex mx-auto max-w-screen-md items-center h-screen">
          <div className="flex w-3/5">
@@ -53,7 +54,6 @@ const Login = () => {
                  className="text-sm text-gray-base w-full mr-3 py-5 px-4 h-2 border border-gray-primary rounded mb-2"
                  onChange={({target}) => setPassword(target.value)}
                  />
-
                  <button disabled={isInvalid}
                  type="submit"
                  className={`bg-blue-medium w-full rounded h-8 font-bold text-white ${isInvalid && `opacity-50`}`}>Log In</button>

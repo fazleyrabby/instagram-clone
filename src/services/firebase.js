@@ -1,3 +1,4 @@
+import user from '../components/sidebar/user';
 import { firebase, FieldValue } from '../lib/firebase';
 
 export async function doesUsernameExist(username) {
@@ -22,4 +23,12 @@ export async function getUserByUserId(userId){
       docId: item.id
    }));
    return user;
+}
+
+export async function getSuggestedProfiles(userId, following){
+   const result = await firebase.firestore().collection('users').limit(10).get();
+
+   return result.docs
+   .map((user) => ({...user.data(), docId:user.id}))
+   .filter((profile) => profile.userId !== userId && !following.includes(profile.userId))
 }
