@@ -9,7 +9,7 @@ const useUser = () => {
         //get data by user id 
         const [response] = await getUserByUserId(user.uid);
         setActiveUser(response);
-       }
+       } 
        if(user?.uid){
             getUserObjByUserId()
        }
